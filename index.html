@@ -103,20 +103,23 @@
             position: absolute;
             top: 50%; /* Center vertically */
             left: 50%; /* Center horizontally */
-            transform: translate(-50%, -50%) scale(1); /* Initial centering and scale */
-            transition: transform 3s ease-out; /* Smooth zoom transition */
+            transform: translate(-50%, -50%) scale(0.8); /* Start slightly smaller and centered */
+            opacity: 0; /* Start invisible */
+            transition: transform 0.4s ease-out, opacity 0.4s ease-out; /* Fast transition for dramatic pop */
             transform-origin: center center; /* Zoom from the center */
         }
 
         /* SIKEEEEEEEE Text Styles */
         #sike-text {
             position: absolute;
+            top: 50%; /* Position its top-left corner in the middle */
+            left: 50%; /* Position its top-left corner in the middle */
+            transform: translate(-50%, -50%) scale(0.5); /* Center the element, and initial scale */
             /* Responsive font size, same logic as h1 */
             font-size: clamp(2rem, 8vw, 4rem);
             color: red; /* Stands out for a scare */
             text-shadow: 0 0 10px red, 0 0 20px red, 0 0 30px red; /* Intense glow */
             opacity: 0; /* Hidden by default */
-            transform: scale(0.5); /* Start small */
             z-index: 30; /* Above image */
             pointer-events: none; /* Allow mouse events to pass through */
         }
@@ -169,7 +172,6 @@
     <div id="jump-scare-container">
         <!-- 
             IMPORTANT:
-            The imgBB link 'https://ibb.co/0jSjqYpX' provided previously does not work ("Image not found").
             Please download the original image from the top of your prompt and save it as 'IMG-2454.jpg' 
             in the SAME FOLDER as this HTML file. This local path is more reliable.
         -->
@@ -196,7 +198,7 @@
             let i = 0;
             element.innerHTML = ''; // Clear existing text content
             element.style.overflow = 'hidden'; // Essential for the typing animation
-            element.style.whiteSpace = 'nowrap'; // Keeps text on one line
+            element.style.whiteSpace = 'nowrap'; // Keeps text on a single line
             element.style.borderRight = '.15em solid #0F0'; // Blinking cursor visual
 
             // Apply typing animation (width increase) and blinking caret animation
@@ -224,10 +226,12 @@
             jumpScareContainer.style.display = 'none'; // Hide jump scare
 
             // Reset jump scare elements to their initial state for next time
-            jumpScareImage.style.transform = 'translate(-50%, -50%) scale(1)'; // Reset image scale and position
+            jumpScareImage.style.transform = 'translate(-50%, -50%) scale(0.8)'; // Reset image scale and position (to CSS default)
+            jumpScareImage.style.opacity = '0'; // Reset image opacity (to CSS default)
+
             sikeText.style.opacity = '0';
             sikeText.style.animation = 'none'; // Remove animation to prevent state persistence
-            sikeText.style.transform = 'translate(-50%, -50%) scale(0.5) rotate(0deg)'; // Reset text transform to initial pop state
+            sikeText.style.transform = 'translate(-50%, -50%) scale(0.5)'; // Reset text transform to initial pop state
 
             // Clear any lingering sparks
             fireworksContainer.innerHTML = '';
@@ -265,9 +269,10 @@
             landingPage.style.display = 'none'; // Hide the landing page
             jumpScareContainer.style.display = 'flex'; // Show the jump scare container
 
-            // Small delay before starting the zoom to ensure the element is rendered
+            // Small delay to ensure the container is displayed before starting transitions
             setTimeout(() => {
-                jumpScareImage.style.transform = 'translate(-50%, -50%) scale(1.3)'; // Zoom in on the image
+                jumpScareImage.style.opacity = '1'; // Make image visible
+                jumpScareImage.style.transform = 'translate(-50%, -50%) scale(1.8)'; // Zoom in dramatically
             }, 50);
 
             // After a short delay, make the "SIKEEEEEEEE" text pop up and trigger fireworks
@@ -284,10 +289,11 @@
             }, 1000); // This delay (1 second) allows the image to start zooming before the text/fireworks appear
 
             // After all animations are done, wait 3 seconds and go back to the landing page
-            // Longest animation is image zoom (3s) + 3s additional wait = 6 seconds from jump scare display
+            // Longest animation is image zoom (0.4s) + additional wait (3s) + Sike animation (0.8s) + a small buffer.
+            // Let's set it to 4.5 seconds after image and sike start (total 5.5s from button click)
             setTimeout(() => {
                 resetToLandingPage(); // Go back to landing page (without re-typing)
-            }, 6000); 
+            }, 5500); /* 1000ms (initial delay) + 0.4s (image zoom) + 0.8s (sike animation) + ~3.3s (extra wait) = 5.5s total */
         });
 
         // Function to create a single spark for the fireworks effect
