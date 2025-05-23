@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Violette's Abyss</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden; /* Prevents scrollbars, especially important for jump scare */
+            background-color: black;
+            color: #0F0; /* Classic Matrix green */
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+        }
+
+        /* Landing Page Styles */
+        #landing-page {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100vw;
+            height: 100vh;
+            position: absolute; /* Occupy full screen */
+            top: 0;
+            left: 0;
+            z-index: 10;
+            background-color: black; /* Ensure black background when visible */
+        }
+
+        #landing-page h1 {
+            /* Responsive font size: min 2rem, scales with 8vw, max 4rem */
+            font-size: clamp(2rem, 8vw, 4rem);
+            margin-bottom: 30px;
+            text-shadow: 0 0 5px #0F0, 0 0 10px #0F0; /* Subtle glow effect */
+            line-height: 1.2; /* Adjust line height if text wraps on small screens */
+        }
+
+        #landing-page button {
+            background-color: #0F0;
+            color: black;
+            border: 2px solid #0F0;
+            padding: 15px 40px;
+            font-size: 1.5em;
+            cursor: pointer;
+            text-shadow: none; /* Remove glow from button text itself */
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s, box-shadow 0.3s;
+            box-shadow: 0 0 5px #0F0; /* Button glow */
+            outline: none; /* Remove outline on focus */
+        }
+
+        #landing-page button:hover {
+            background-color: black;
+            color: #0F0;
+            box-shadow: 0 0 10px #0F0;
+        }
+
+        /* Typewriter Effect Base Styles (Animations applied via JS) */
+        .typewriter-element {
+            overflow: hidden; /* Ensures text is hidden until typed */
+            white-space: nowrap; /* Keeps text on a single line */
+        }
+
+        /* Keyframes for Typewriter Animation */
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: #0F0 }
+        }
+
+        /* Jump Scare Container Styles */
+        #jump-scare-container {
+            display: none; /* Hidden by default */
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: black;
+            overflow: hidden; /* Crucial for controlling image within */
+            z-index: 20; /* Ensure it's on top */
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        #jump-scare-image {
+            /* Responsive image sizing: max 90% of container, fits entirely */
+            max-width: 90%;
+            max-height: 90%;
+            width: auto;
+            height: auto;
+            object-fit: contain; /* Ensures entire image is visible, no cropping */
+            position: absolute;
+            top: 50%; /* Center vertically */
+            left: 50%; /* Center horizontally */
+            transform: translate(-50%, -50%) scale(1); /* Initial centering and scale */
+            transition: transform 3s ease-out; /* Smooth zoom transition */
+            transform-origin: center center; /* Zoom from the center */
+        }
+
+        /* SIKEEEEEEEE Text Styles */
+        #sike-text {
+            position: absolute;
+            /* Responsive font size, same logic as h1 */
+            font-size: clamp(2rem, 8vw, 4rem);
+            color: red; /* Stands out for a scare */
+            text-shadow: 0 0 10px red, 0 0 20px red, 0 0 30px red; /* Intense glow */
+            opacity: 0; /* Hidden by default */
+            transform: scale(0.5); /* Start small */
+            z-index: 30; /* Above image */
+            pointer-events: none; /* Allow mouse events to pass through */
+        }
+
+        /* SIKEEEEEEEE Jerking Pop Animation */
+        @keyframes sikeCrazyPop {
+            0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.5) rotate(-5deg); }
+            10%  { opacity: 1; transform: translate(-50%, -50%) scale(1.2) rotate(5deg); } /* Pop in large */
+            20%  { opacity: 0; transform: translate(-50%, -50%) scale(0.8) rotate(-2deg); } /* Pop out slightly smaller */
+            30%  { opacity: 1; transform: translate(-50%, -50%) scale(1.1) rotate(3deg); } /* Pop in slightly smaller */
+            40%  { opacity: 0; transform: translate(-50%, -50%) scale(0.7) rotate(-4deg); } /* Pop out even smaller */
+            50%  { opacity: 1; transform: translate(-50%, -50%) scale(1.05) rotate(1deg); } /* Pop in */
+            60%  { opacity: 0; transform: translate(-50%, -50%) scale(0.9) rotate(-1deg); } /* Pop out */
+            70%  { opacity: 1; transform: translate(-50%, -50%) scale(1.15) rotate(4deg); } /* Final strong pop */
+            100% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0deg); } /* Settle */
+        }
+
+        /* Fireworks Container and Spark Styles */
+        #fireworks-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* Allow clicks through */
+            overflow: hidden;
+            z-index: 25; /* Between image and text */
+        }
+
+        .spark {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0; /* Initial opacity for smooth fade-in */
+            animation: spark-burst 1.8s forwards ease-out; /* Increased duration for visibility */
+        }
+
+        @keyframes spark-burst {
+            0% { transform: translate(0, 0) scale(0); opacity: 1; } /* Start visible and small */
+            100% { transform: translate(var(--x), var(--y)) scale(1); opacity: 0; } /* End moved, scaled, and faded */
+        }
+    </style>
+</head>
+<body>
+
+    <div id="landing-page">
+        <h1 id="page-title" class="typewriter-element">Violette's Abyss</h1>
+        <button id="enter-button" class="typewriter-element">Enter</button>
+    </div>
+
+    <div id="jump-scare-container">
+        <!-- 
+            IMPORTANT:
+            The imgBB link 'https://ibb.co/0jSjqYpX' provided previously does not work ("Image not found").
+            Please download the original image from the top of your prompt and save it as 'IMG-2454.jpg' 
+            in the SAME FOLDER as this HTML file. This local path is more reliable.
+        -->
+        <img id="jump-scare-image" src="IMG-2454.jpg" alt="A terrifying face with a gaping mouth and white eyes, screaming.">
+        <div id="sike-text">SIKEEEEEEEE</div>
+        <div id="fireworks-container"></div>
+    </div>
+
+    <script>
+        const landingPage = document.getElementById('landing-page');
+        const pageTitle = document.getElementById('page-title');
+        const enterButton = document.getElementById('enter-button');
+        const jumpScareContainer = document.getElementById('jump-scare-container');
+        const jumpScareImage = document.getElementById('jump-scare-image');
+        const sikeText = document.getElementById('sike-text');
+        const fireworksContainer = document.getElementById('fireworks-container');
+
+        // Preload the jump scare image to avoid delay when it's displayed
+        const img = new Image();
+        img.src = jumpScareImage.src; 
+
+        // Typewriter effect function for sequential typing
+        function typeWriter(element, text, speed, callback) {
+            let i = 0;
+            element.innerHTML = ''; // Clear existing text content
+            element.style.overflow = 'hidden'; // Essential for the typing animation
+            element.style.whiteSpace = 'nowrap'; // Keeps text on one line
+            element.style.borderRight = '.15em solid #0F0'; // Blinking cursor visual
+
+            // Apply typing animation (width increase) and blinking caret animation
+            const typingDuration = (text.length * speed) / 1000; // Duration in seconds
+            element.style.animation = `typing ${typingDuration}s steps(${text.length}, end), blink-caret .75s step-end infinite`;
+
+            const type = () => {
+                if (i < text.length) {
+                    element.innerHTML += text.charAt(i);
+                    i++;
+                    setTimeout(type, speed);
+                } else {
+                    // Once typing is complete, remove the cursor and stop animations
+                    element.style.borderRight = 'none';
+                    element.style.animation = 'none';
+                    if (callback) callback(); // Execute callback if provided
+                }
+            };
+            type();
+        }
+
+        // Function to reset and show the landing page, with optional typewriter re-initialization
+        function resetToLandingPage(initialLoad = false) {
+            landingPage.style.display = 'flex'; // Show the landing page
+            jumpScareContainer.style.display = 'none'; // Hide jump scare
+
+            // Reset jump scare elements to their initial state for next time
+            jumpScareImage.style.transform = 'translate(-50%, -50%) scale(1)'; // Reset image scale and position
+            sikeText.style.opacity = '0';
+            sikeText.style.animation = 'none'; // Remove animation to prevent state persistence
+            sikeText.style.transform = 'translate(-50%, -50%) scale(0.5) rotate(0deg)'; // Reset text transform to initial pop state
+
+            // Clear any lingering sparks
+            fireworksContainer.innerHTML = '';
+
+            // Re-run typewriter effect if on initial load or explicitly requested
+            if (initialLoad) {
+                const titleText = pageTitle.textContent;
+                pageTitle.textContent = ''; 
+                const buttonText = enterButton.textContent;
+                enterButton.textContent = ''; 
+                enterButton.disabled = true; // Disable button until its text is typed
+
+                typeWriter(pageTitle, titleText, 70, () => {
+                    typeWriter(enterButton, buttonText, 70, () => {
+                        enterButton.disabled = false; // Enable the button after its text is fully typed
+                    });
+                });
+            } else {
+                // If not initial load (returning from jump scare), just ensure elements are visible and enabled
+                // No need to re-type if already done
+                pageTitle.style.borderRight = 'none'; 
+                enterButton.style.borderRight = 'none'; 
+                enterButton.disabled = false;
+            }
+        }
+
+        // Initialize typewriter effects on page load
+        window.addEventListener('load', () => {
+            resetToLandingPage(true); // Call with true to initialize typewriter
+        });
+
+
+        // Jump scare logic triggered by button click
+        enterButton.addEventListener('click', () => {
+            landingPage.style.display = 'none'; // Hide the landing page
+            jumpScareContainer.style.display = 'flex'; // Show the jump scare container
+
+            // Small delay before starting the zoom to ensure the element is rendered
+            setTimeout(() => {
+                jumpScareImage.style.transform = 'translate(-50%, -50%) scale(1.3)'; // Zoom in on the image
+            }, 50);
+
+            // After a short delay, make the "SIKEEEEEEEE" text pop up and trigger fireworks
+            setTimeout(() => {
+                sikeText.style.animation = 'sikeCrazyPop 0.8s ease-out forwards'; // Apply the crazy pop animation
+
+                // Generate multiple sparks for the firework effect
+                for (let i = 0; i < 40; i++) { // Increased number of sparks for more visibility
+                    // Stagger spark creation slightly for a burst effect
+                    setTimeout(() => {
+                        createSpark();
+                    }, i * 20); // Slightly reduced delay for a denser burst
+                }
+            }, 1000); // This delay (1 second) allows the image to start zooming before the text/fireworks appear
+
+            // After all animations are done, wait 3 seconds and go back to the landing page
+            // Longest animation is image zoom (3s) + 3s additional wait = 6 seconds from jump scare display
+            setTimeout(() => {
+                resetToLandingPage(); // Go back to landing page (without re-typing)
+            }, 6000); 
+        });
+
+        // Function to create a single spark for the fireworks effect
+        function createSpark() {
+            const spark = document.createElement('div');
+            spark.classList.add('spark');
+
+            // Random size for the spark (increased range)
+            const size = Math.random() * 15 + 8; // Between 8px and 23px
+            spark.style.width = `${size}px`;
+            spark.style.height = `${size}px`;
+
+            // Random starting position within the viewport
+            const startX = Math.random() * window.innerWidth;
+            const startY = Math.random() * window.innerHeight;
+            spark.style.left = `${startX}px`;
+            spark.style.top = `${startY}px`;
+
+            // Random direction and distance for the spark to travel (spread outwards)
+            const angle = Math.random() * Math.PI * 2; // Full circle (0 to 2*PI radians)
+            const distance = Math.random() * 250 + 100; // How far it travels (100px to 350px)
+            const endX = startX + distance * Math.cos(angle);
+            const endY = startY + distance * Math.sin(angle);
+
+            // Set CSS custom properties for the animation to use
+            spark.style.setProperty('--x', `${endX - startX}px`);
+            spark.style.setProperty('--y', `${endY - startY}px`);
+
+            // Random colors for a varied firework effect
+            const colors = ['#FF0', '#F00', '#0FF', '#FFF', '#0F0', '#F0F', '#F80', '#08F', '#8F0', '#F08']; // More colors
+            spark.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+
+            fireworksContainer.appendChild(spark);
+
+            // Remove the spark element after its animation finishes to clean up the DOM
+            spark.addEventListener('animationend', () => {
+                spark.remove();
+            });
+        }
+    </script>
+</body>
+</html>
